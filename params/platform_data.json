@@ -1,0 +1,9 @@
+{
+  "schedule_job": {
+    "description": "常用调度任务编号配置",
+    "1": "cbs_loan_initorder",
+    "2": "cbs_loan_credit",
+    "3": "cbs_loan_risk",
+    "4": "res_003"
+  }
+}

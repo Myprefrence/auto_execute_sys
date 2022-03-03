@@ -1,0 +1,44 @@
+.idea/
+*.iml
+target
+**/target/
+.vscode/
+dist/
+node_modules/
+logs/
+**/webapp/static/
+**/webapp/index.html
+package-lock.json
+**/.dubbo/
+
+.class
+
+# Eclipse
+.classpath
+.project
+.settings/
+
+# Intellij
+*.iws
+
+# Mac
+.DS_Store
+
+# Maven
+target/
+
+# Gradle
+.gradletasknamecache
+.gradle/
+
+bin/
+
+# vc
+.svn
+.git
+/disconf/
+
+
+# python
+*.py[cod]
+*/__pycache__
