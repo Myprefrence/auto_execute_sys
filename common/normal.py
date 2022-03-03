@@ -30,11 +30,15 @@ def get_root_path():
     path = os.getcwd().split('\\')
     return rf'{path[0]}\{path[1]}'
 
+def configs_path():
+    path = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    return path
 
 # 获取配置文件内容
 def get_config(file_path: str):
-    config_path = os.path.join(get_root_path(), file_path)
+    config_path = os.path.join(configs_path(), file_path)
 
     config = configparser.ConfigParser()
     config.read(config_path, encoding='utf-8')
     return config
+
