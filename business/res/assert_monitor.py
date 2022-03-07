@@ -78,7 +78,7 @@ class AssertMonitor:
         """
         根据项目号计算本金余额
         """
-        sum_cbs_balance = 0
+        sum_balance = 0
         pls_project_balance = 0
 
         if quota_type == 0:
@@ -111,9 +111,9 @@ class AssertMonitor:
                     # 本金余额
                     cbs_principal_balance = cbs_loan_amt - rpy_principal - repay_principal
 
-                    print("循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, cbs_principal_balance, ))
-                    sum_cbs_balance += cbs_principal_balance
+                    print("实担项目循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, cbs_principal_balance, ))
 
+                    sum_balance += cbs_principal_balance
                     credit_limit = QueryCredit(self.xn, self.env).query_project_credit(projectNo)
 
                     quota_use_ate = cbs_principal_balance / credit_limit * 100
@@ -146,8 +146,8 @@ class AssertMonitor:
                         else:
                             p_repay_principal += pls_repay_principal
                         pls_principal_balance = pls_loan_amt - p_rpy_principal - p_repay_principal
-                        print("循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, pls_principal_balance,))
-                        pls_project_balance += pls_principal_balance
+                        print("通道项目循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, pls_principal_balance,))
+                        sum_balance += pls_principal_balance
                     else:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo,))
 
@@ -161,17 +161,15 @@ class AssertMonitor:
                     p_rpy_principal = 0
                     p_repay_principal = 0
 
-            if sum_cbs_balance != 0:
-                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
-                assert_use_ate = sum_cbs_balance / assert_credit * 100
-                assert_use_ate = round(assert_use_ate, 2)
-                print("%s资产维度总授信额度为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit, assert_use_ate,))
-            else:
-                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
-                pls_use_ate = pls_project_balance / assert_credit * 100
-                pls_use_ate = round(pls_use_ate, 2)
-                print("%s资产维度总授信额度为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit, pls_use_ate,))
+            if sum_balance != 0:
 
+                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
+                assert_use_ate = sum_balance / assert_credit * 100
+                assert_use_ate = round(assert_use_ate, 2)
+                print("%s资产维度总授信额度为：%s，总余额为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit,
+                                                               sum_balance, assert_use_ate,))
+            else:
+                print("%s资产维度无数据" % (asset_org_no, ))
         else:
             # 当额度类型等于1时非循环
             for projectNo in project_no:

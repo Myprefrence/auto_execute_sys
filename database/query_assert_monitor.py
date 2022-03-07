@@ -209,7 +209,8 @@ class repay:
             with self.connection.cursor() as cursor:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
-                sql = f"select sum(quota) from {self.env}_prs.t_asset_quota_project_info where asset_code=%s and `enable`='Y';"
+                sql = f"select sum(quota) from {self.env}_prs.t_asset_quota_project_info where asset_code=%s and " \
+                      f"`enable`='Y' and op_status in('modify', 'online');"
                 cursor.execute(sql, (assert_no,))
                 result = cursor.fetchone()
 
