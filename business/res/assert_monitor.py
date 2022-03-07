@@ -11,6 +11,7 @@ import datetime
 
 from database.query_assert_monitor import *
 
+
 class QueryCredit:
     def __init__(self, xn, env):
 
@@ -28,7 +29,35 @@ class QueryCredit:
 
         return sum_credit_limit
 
-
+    def count_assert_message(self, assert_no):
+        """
+        统计资产编号数据结果
+        """
+        quotaType = {
+            "cyclic": "循环",
+            "acyclic": "非循环",
+            "mix": "混合",
+        }
+        monitor = {
+            "active": "生效中",
+            "inactive": "失效"
+        }
+        prs_assert_message = repay(self.mysql, self.xn, self.env).prs_assert_message(assert_no)
+        # 授信额度
+        credit_limit = prs_assert_message["quota"]
+        # 余额
+        balance = prs_assert_message["available_quota"]
+        quota_use_ate = balance / credit_limit * 100
+        quota_use_ate = round(quota_use_ate, 2)
+        # 额度到期日
+        expire_end_datetime = prs_assert_message["expire_end_datetime"]
+        # 额度类型
+        quota_type = prs_assert_message["quota_type"]
+        # 监控状态
+        monitor_status = prs_assert_message["monitor_status"]
+        print("资产编号：%s,监控状态为：%s, 授信额度为：%s, 额度类型为：%s, 额度到期日为：%s, 当前余额为：%s, 额度使用率为：%s%%"
+              % (assert_no, monitor.get(monitor_status), credit_limit, quotaType.get(quota_type), expire_end_datetime,
+                 balance, quota_use_ate, ))
 
 
 class AssertMonitor:
@@ -132,7 +161,6 @@ class AssertMonitor:
                     p_repay_principal = 0
                     project_balance = 0
 
-
         else:
             # 当额度类型等于1时非循环
             for projectNo in project_no:
@@ -160,38 +188,6 @@ class AssertMonitor:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo,))
 
 
-
-    def count_assert_message(self, assert_no):
-        """
-        统计资产编号数据结果
-        """
-        quotaType = {
-            "cyclic": "循环",
-            "acyclic": "非循环",
-            "mix": "混合",
-        }
-        monitor = {
-            "active": "生效中",
-            "inactive": "失效"
-        }
-        prs_assert_message = repay(self.mysql, self.xn, self.env).prs_assert_message(assert_no)
-        # 授信额度
-        credit_limit = prs_assert_message["quota"]
-        # 余额
-        balance = prs_assert_message["available_quota"]
-        quota_use_ate = balance / credit_limit * 100
-        quota_use_ate = round(quota_use_ate, 2)
-        # 额度到期日
-        expire_end_datetime = prs_assert_message["expire_end_datetime"]
-        # 额度类型
-        quota_type = prs_assert_message["quota_type"]
-        # 监控状态
-        monitor_status = prs_assert_message["monitor_status"]
-        print("资产编号：%s,监控状态为：%s, 授信额度为：%s, 额度类型为：%s, 额度到期日为：%s, 当前余额为：%s, 额度使用率为：%s%%"
-              % (assert_no, monitor.get(monitor_status), credit_limit, quotaType.get(quota_type), expire_end_datetime,
-                 balance, quota_use_ate, ))
-
-
 if __name__ == '__main__':
     # jly是融担环境，mysql=adb，xn=dw时，是查adb库， mysql=rds时，xn=dw时，是查rds库
     mysql = "adb"
@@ -209,7 +205,7 @@ if __name__ == '__main__':
     credit_limit = 1000
 
     # 资产方统计信息(查rds库)
-    # AssertMonitor(mysql, xn, env).count_assert_message(assert_no)
+    QueryCredit(xn, env).count_assert_message(assert_no)
 
 
 
