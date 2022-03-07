@@ -57,15 +57,17 @@ class repay_re:
 if __name__ == '__main__':
     xn = "xna"
     env = "test2"
-    order_no = "Lpj14ku61646046050"
+    order_no = "JLiz2Mry1646622592"
     #是否结清 0.本期未结清 1.本期结清
     repay_settle = 1
     #还款类型 01-提前结清 02-按制定期数进行还款
     rpyType = "02"
     #还款期数
     rpyTerm = "2"
+    # 还款总金额
+    rpyPrinAmt_sum = 300
     #还款本金
-    rpyPrinAmt = "100"
+    rpyPrinAmt = str(rpyPrinAmt_sum/3)
     #还款利息
     rpyIntAmt = "10"
     #罚息,逾期才可用

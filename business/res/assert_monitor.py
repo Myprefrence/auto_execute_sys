@@ -65,6 +65,10 @@ class AssertMonitor:
                     print("循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, cbs_principal_balance, ))
                     project_balance += cbs_principal_balance
 
+                    # 计算后初始化rpy_principal，repay_principal
+                    rpy_principal = 0
+                    repay_principal = 0
+
                 else:
                     # 为通道项目
                     # 通道放款本金
@@ -90,6 +94,11 @@ class AssertMonitor:
                         project_balance += pls_principal_balance
                     else:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo,))
+
+                    # 计算后初始化p_rpy_principal，p_repay_principal
+                    p_rpy_principal = 0
+                    p_repay_principal = 0
+
 
         else:
             # 当额度类型等于1时非循环
@@ -155,13 +164,13 @@ if __name__ == '__main__':
     # 资产方编号(已页面设置为准)
     assert_no = "360JR"
     # 项目列表，模拟资产编号下的项目(已页面设置为准)
-    project = ["5001", "5002", "5003"]
+    project = ["5004", "5005", "5006"]
     # 额度类型为0时为循环，为1时为非循环(已页面设置为准)
     quota_type = 0
     # 担保开始时间，可以不传，不传系统默认时间为1900-01-01 00:00:00(已页面设置为准)
     warrant_start_time = "2022-01-01 00:00:00"
     # 授信额度(已页面设置为准)
-    credit_limit = 300
+    credit_limit = 1000
 
     # 资产方统计信息(查rds库)
     # AssertMonitor(mysql, xn, env).count_assert_message(assert_no)
