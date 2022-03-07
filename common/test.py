@@ -8,6 +8,7 @@
 
 # @Software: PyCharm
 # @Desc:http请求：post,get
+import datetime
 
 import requests
 import json
@@ -126,5 +127,13 @@ if __name__ == '__main__':
 
     # header="application/x-www-form-urlencoded"
    # requestsUtils().post_main(method="post",url=url,data=data,header=header)
-    res = s.post(url=su_url, data=json.dumps(su_data), headers=su_header)
-    print(res.text)
+   #  res = s.post(url=su_url, data=json.dumps(su_data), headers=su_header)
+   #  print(res.text)
+
+
+# time = "2021-10-17"
+# new_time = datetime.datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+# new_time = datetime.datetime.strftime(new_time,"%Y-%m-%d %H:%M:%S")
+now_time = datetime.datetime.now()
+new_time = now_time - datetime.timedelta(days=50)
+print(new_time)
