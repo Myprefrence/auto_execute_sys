@@ -137,16 +137,19 @@ class repay:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"select sum(loan_amt) from {self.xn}_{self.env}_cbs.t_loan_order where order_status " \
-                      f"in('SETTLED','ON_REPAYMENT') and project_no=%s and %s <= cap_interest_day <= Now() " \
-                      f"and asset_org_no=%s;"
+                      f"in('SETTLED','ON_REPAYMENT') and project_no=%s and " \
+                      f"%s <= cap_interest_day and cap_interest_day <= now() and asset_org_no=%s;"
+
                 cursor.execute(sql, (project_no, warrant_start_time, asset_org_no))
+
                 result = cursor.fetchone()
 
                 return result
         finally:
             self.connection.close()
 
-    def pls_compare_quota(self, project_no, warrant_start_time, now_time, asset_org_no):
+
+    def pls_compare_quota(self, project_no, warrant_start_time:int, now_time:int, asset_org_no):
         '''计算通道总放款金额'''
 
         try:
@@ -156,6 +159,7 @@ class repay:
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"select sum(loan_principal) from {self.xn}_{self.env}_pls.t_order_info where project_no=%s " \
                       f"and %s <= loan_date <= %s and asset_org_no=%s;"
+
                 cursor.execute(sql, (project_no, warrant_start_time, now_time, asset_org_no))
                 result = cursor.fetchone()
 
@@ -179,3 +183,38 @@ class repay:
                 return result
         finally:
             self.connection.close()
+
+    def query_project_credit(self, project_no):
+        '''统计资产方信息'''
+
+        projectNo = '%' + project_no + '%'
+        try:
+
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"select quota from {self.env}_prs.t_asset_quota_project_info where project_nos like %s and `enable`='Y';"
+                cursor.execute(sql, (projectNo,))
+                result = cursor.fetchone()
+
+                return result
+        finally:
+            self.connection.close()
+
+    def query_project_sum_credit(self, assert_no):
+        '''统计资产方信息'''
+
+        try:
+
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"select sum(quota) from {self.env}_prs.t_asset_quota_project_info where asset_code=%s and `enable`='Y';"
+                cursor.execute(sql, (assert_no,))
+                result = cursor.fetchone()
+
+                return result
+        finally:
+            self.connection.close()
+
+
