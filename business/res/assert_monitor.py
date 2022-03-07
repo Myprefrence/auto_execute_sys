@@ -78,7 +78,8 @@ class AssertMonitor:
         """
         根据项目号计算本金余额
         """
-        project_balance = 0
+        sum_cbs_balance = 0
+        pls_project_balance = 0
 
         if quota_type == 0:
 
@@ -111,20 +112,20 @@ class AssertMonitor:
                     cbs_principal_balance = cbs_loan_amt - rpy_principal - repay_principal
 
                     print("循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, cbs_principal_balance, ))
-                    project_balance += cbs_principal_balance
+                    sum_cbs_balance += cbs_principal_balance
 
                     credit_limit = QueryCredit(self.xn, self.env).query_project_credit(projectNo)
 
-                    quota_use_ate = project_balance / credit_limit * 100
+                    quota_use_ate = cbs_principal_balance / credit_limit * 100
                     quota_use_ate = round(quota_use_ate, 2)
                     print("项目维度额度使用率为：%s%%" % (quota_use_ate,))
 
-                    # 计算后初始化rpy_principal，repay_principal，project_balance
+                    # 计算后初始化rpy_principal，repay_principal
                     rpy_principal = 0
                     repay_principal = 0
-                    project_balance = 0
 
                 else:
+                    global pls_principal_balance
                     # 为通道项目
                     # 通道放款本金
                     p_rpy_principal = 0
@@ -146,20 +147,30 @@ class AssertMonitor:
                             p_repay_principal += pls_repay_principal
                         pls_principal_balance = pls_loan_amt - p_rpy_principal - p_repay_principal
                         print("循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, pls_principal_balance,))
-                        project_balance += pls_principal_balance
+                        pls_project_balance += pls_principal_balance
                     else:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo,))
 
                     credit_limit = QueryCredit(self.xn, self.env).query_project_credit(projectNo)
 
-                    quota_use_ate = project_balance / credit_limit * 100
+                    quota_use_ate = pls_principal_balance / credit_limit * 100
                     quota_use_ate = round(quota_use_ate, 2)
                     print("项目维度额度使用率为：%s%%" % (quota_use_ate,))
 
-                    # 计算后初始化p_rpy_principal，p_repay_principal，project_balance = 0
+                    # 计算后初始化p_rpy_principal，p_repay_principal
                     p_rpy_principal = 0
                     p_repay_principal = 0
-                    project_balance = 0
+
+            if sum_cbs_balance != 0:
+                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
+                assert_use_ate = sum_cbs_balance / assert_credit * 100
+                assert_use_ate = round(assert_use_ate, 2)
+                print("%s资产维度总授信额度为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit, assert_use_ate,))
+            else:
+                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
+                pls_use_ate = pls_project_balance / assert_credit * 100
+                pls_use_ate = round(pls_use_ate, 2)
+                print("%s资产维度总授信额度为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit, pls_use_ate,))
 
         else:
             # 当额度类型等于1时非循环
@@ -167,10 +178,9 @@ class AssertMonitor:
 
                 cbs_compare_quota = repay(self.mysql, self.xn, self.env).cbs_compare_quota(projectNo, warrant_start_time, asset_org_no)['sum(loan_amt)']
 
-
                 if cbs_compare_quota is not None:
                     print("非循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, cbs_compare_quota,))
-                    project_balance += cbs_compare_quota
+                    pls_project_balance += cbs_compare_quota
 
                 else:
                     # 为通道项目
@@ -183,7 +193,7 @@ class AssertMonitor:
 
                     if pls_compare_quota is not None:
                         print("非循环时，%s 项目计算过后的本金余额为： %s" % (projectNo, pls_compare_quota,))
-                        project_balance += pls_compare_quota
+                        pls_project_balance += pls_compare_quota
                     else:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo,))
 
@@ -196,9 +206,9 @@ if __name__ == '__main__':
     # 资产方编号(已页面设置为准)
     assert_no = "360JR"
     # 项目列表，模拟资产编号下的项目(已页面设置为准)
-    project = ["5004", "5005", "5006"]
+    project = ["5004", "5005", "5006", "W001"]
     # 额度类型为0时为循环，为1时为非循环(已页面设置为准)
-    quota_type = 1
+    quota_type = 0
     # 担保开始时间，可以不传，不传系统默认时间为1900-01-01 00:00:00(已页面设置为准)
     warrant_start_time = "2022-01-01 00:00:00"
     # 授信额度(已页面设置为准)
@@ -206,8 +216,6 @@ if __name__ == '__main__':
 
     # 资产方统计信息(查rds库)
     QueryCredit(xn, env).count_assert_message(assert_no)
-
-
 
     # 项目统计信息
     AssertMonitor(mysql, xn, env).count_principal_balance(project_no=project, asset_org_no=assert_no,

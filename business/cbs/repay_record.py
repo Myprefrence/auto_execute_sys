@@ -57,7 +57,7 @@ class repay_re:
 if __name__ == '__main__':
     xn = "xna"
     env = "test2"
-    order_no = "JLiz2Mry1646622592"
+    order_no = "gJZbAm2v1646637990"
     #是否结清 0.本期未结清 1.本期结清
     repay_settle = 1
     #还款类型 01-提前结清 02-按制定期数进行还款
@@ -75,7 +75,7 @@ if __name__ == '__main__':
     #其它费用
     rpyOtherAmt = "0"
     #自定义还款时间
-    customize_repay_datetime = ["2021-08-17", "2021-09-17", "2021-10-17", "2022-01-18", "2022-02-18"]
+    customize_repay_datetime = ["2021-11-16", "2021-12-16", "2022-01-16", "2022-01-18", "2022-02-18"]
     #自动还款时间
     repay_datetime = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
     #还款总金额

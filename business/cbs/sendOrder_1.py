@@ -222,7 +222,7 @@ class send:
                     rpy_principal = round((loanAmt / loan_term), 2)
                     rey_total = rpy_principal + rpy_interest
                     # loan_date = self.r_time(loan_term)
-                    loan_date = ["2021-08-17", "2021-09-17", "2021-10-17", "2022-01-18", "2022-02-18"]
+                    loan_date = ["2021-11-16", "2021-12-16", "2022-01-16", "2022-01-18", "2022-02-18"]
 
                     current_period = 1
 
