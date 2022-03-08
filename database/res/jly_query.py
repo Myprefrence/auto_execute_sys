@@ -31,8 +31,9 @@ def get_strategy_ref_project(env: str, strategy_code: str):
                      f'strategy_code = "{strategy_code}" and '
                      f'enable = "Y" and '
                      f'create_datetime = ('
-                     f'select max(create_datetime) from {env}_res.t_strategy_project_ref'
-                     f');', size=-1)
+                     f'select max(create_datetime) from {env}_res.t_strategy_project_ref where '
+                     f'strategy_code = "{strategy_code}" and '
+                     f'enable = "Y");', size=-1)
 
 
 # 查询策略输出变量
@@ -41,7 +42,13 @@ def get_strategy_output_variable(env: str, strategy_code: str, version: str):
                      f'object_code = "{strategy_code}" and '
                      f'object_version = "{version}" and '
                      f'object_type = "strategy_outbound" and '
-                     f'enable = "Y";', size=-1)
+                     f'enable = "Y" and '
+                     f'create_datetime = ('
+                     f'select max(create_datetime) from {env}_res.t_var_ref_info where '
+                     f'object_code = "{strategy_code}" and '
+                     f'object_version = "{version}" and '
+                     f'object_type = "strategy_outbound" and '
+                     f'enable = "Y");', size=-1)
 
 
 # 查询项目信息
