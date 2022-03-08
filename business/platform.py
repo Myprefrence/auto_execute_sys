@@ -119,8 +119,7 @@ class JlyPlatform:
                 output_variable_list.append({
                     'category': strategy_output_variable['category'],
                     'createBy': 'risk',
-                    'createDatetime': normal.get_timestamp(strategy_output_variable['create_datetime'],
-                                                           size=10),
+                    'createDatetime': normal.get_timestamp(strategy_output_variable['create_datetime']),
                     'dataType': strategy_output_variable['data_type'],
                     'defaultValue': strategy_output_variable['default_value'],
                     'enable': strategy_output_variable['enable'],
@@ -169,8 +168,8 @@ class JlyPlatform:
 
             json_data = json.dumps(request_data)
             logger.info(f'提交策略请求参数: {json_data}')
-            response = platform_request.submit_strategy(env=self.environment, data=json_data)
-            logger.info(f'提交策略请求响应: {response}')
+            # response = platform_request.submit_strategy(env=self.environment, data=json_data)
+            # logger.info(f'提交策略请求响应: {response}')
 
     def do_audit_strategy(self, strategy_code: str, audit_result='Y', refuse_msg='null'):
         # 提交&复核策略
