@@ -237,16 +237,16 @@ class send:
 
 if __name__ == '__main__':
     loanDate = (datetime.datetime.now() + datetime.timedelta(days=92)).__format__('%Y-%m-%d %H:%M:%S')
-    project = "5006"
+    project = "5004"
     custName = "汪离24"
     xn = "xna"
     env = "test2"
-    id = "110101195807071951"
+    id = "110101199703070012"
     # 110101195508074036
     # 13784559356, 15546457225
     mobile = "15846457224"
     loan_term = 3
-    loanAmt = 300
+    loanAmt = 600
     send(xn, env).main(1, project, id, mobile, custName, loan_term, loanAmt)
 
     od = ["H6iWlw3M1641784507"]

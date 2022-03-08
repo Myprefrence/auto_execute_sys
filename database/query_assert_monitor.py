@@ -77,7 +77,7 @@ class repay:
         finally:
             self.connection.close()
 
-    def pls_loan_principal(self, project_no, asset_org_no):
+    def pls_loan_principal(self, project_no):
         '''计算通道借款本金'''
 
         try:
@@ -85,16 +85,15 @@ class repay:
             with self.connection.cursor() as cursor:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
-                sql = f"select sum(loan_principal) from {self.xn}_{self.env}_pls.t_order_info where project_no=%s " \
-                      f"and asset_org_no=%s;"
-                cursor.execute(sql, (project_no, asset_org_no))
+                sql = f"select sum(loan_principal) from {self.xn}_{self.env}_pls.t_order_info where project_no=%s;"
+                cursor.execute(sql, (project_no, ))
                 result = cursor.fetchone()
 
                 return result
         finally:
             self.connection.close()
 
-    def pls_repay_record_principal(self, project_no, asset_org_no):
+    def pls_repay_record_principal(self, project_no):
         '''计算通道还款金额'''
 
         try:
@@ -102,16 +101,15 @@ class repay:
             with self.connection.cursor() as cursor:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
-                sql = f"select sum(repay_principal) from {self.xn}_{self.env}_pls.t_repay_record where project_no=%s " \
-                      f"and asset_org_no=%s;"
-                cursor.execute(sql, (project_no, asset_org_no))
+                sql = f"select sum(repay_principal) from {self.xn}_{self.env}_pls.t_repay_record where project_no=%s;"
+                cursor.execute(sql, (project_no, ))
                 result = cursor.fetchone()
 
                 return result
         finally:
             self.connection.close()
 
-    def pls_compensate_principal(self, project_no, asset_org_no):
+    def pls_compensate_principal(self, project_no):
         '''计算通道代偿金额'''
 
         try:
@@ -120,8 +118,8 @@ class repay:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"select sum(compensate_principal) from {self.xn}_{self.env}_pls.t_compensate_record where " \
-                      f"project_no=%s and asset_org_no=%s;"
-                cursor.execute(sql, (project_no, asset_org_no))
+                      f"project_no=%s;"
+                cursor.execute(sql, (project_no, ))
                 result = cursor.fetchone()
 
                 return result
@@ -149,7 +147,7 @@ class repay:
             self.connection.close()
 
 
-    def pls_compare_quota(self, project_no, warrant_start_time:int, now_time:int, asset_org_no):
+    def pls_compare_quota(self, project_no, warrant_start_time:int, now_time:int):
         '''计算通道总放款金额'''
 
         try:
@@ -158,9 +156,10 @@ class repay:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"select sum(loan_principal) from {self.xn}_{self.env}_pls.t_order_info where project_no=%s " \
-                      f"and %s <= loan_date <= %s and asset_org_no=%s;"
+                      f"and %s <= loan_date <= %s;"
 
-                cursor.execute(sql, (project_no, warrant_start_time, now_time, asset_org_no))
+                cursor.execute(sql, (project_no, warrant_start_time, now_time))
+
                 result = cursor.fetchone()
 
                 return result
@@ -193,7 +192,7 @@ class repay:
             with self.connection.cursor() as cursor:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
-                sql = f"select quota from {self.env}_prs.t_asset_quota_project_info where project_nos like %s and `enable`='Y';"
+                sql = f"select quota from {self.env}_prs.t_asset_quota_project_info where project_nos like %s and `enable`='Y' and op_status in('modify', 'online');"
                 cursor.execute(sql, (projectNo,))
                 result = cursor.fetchone()
 
@@ -217,5 +216,24 @@ class repay:
                 return result
         finally:
             self.connection.close()
+
+    def guarantee_start_datetime(self, project_no):
+        projectNo = '%' + project_no + '%'
+        try:
+
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"select guarantee_start_datetime from {self.env}_prs.t_asset_quota_project_info where project_nos" \
+                      f" like %s and `enable`='Y' and op_status in ('modify', 'online');"
+
+                cursor.execute(sql, (projectNo,))
+
+                result = cursor.fetchone()
+
+                return result
+        finally:
+            self.connection.close()
+
 
 
