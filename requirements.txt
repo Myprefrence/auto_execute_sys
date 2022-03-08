@@ -6,6 +6,7 @@ cffi==1.15.0
 chardet==4.0.0
 charset-normalizer==2.0.8
 cryptography==36.0.1
+DBUtils==3.0.2
 demjson==1.6
 Deprecated==1.2.13
 idna==3.3

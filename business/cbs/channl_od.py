@@ -283,6 +283,35 @@ class channel:
 
         return idCard
 
+    def compensatory(self, order_n):
+        orders_n = ''.join(random.sample(string.ascii_letters, 8))
+        number = ''.join(random.sample(string.digits, 8))
+        compensateRecordId = "XNAP" + orders_n + number + number
+        url = self.url + "/yht-front-oms/api/pushData"
+        time = int(self.n_time())
+        data = {
+            "merchantNo": "LeXin",
+            "projectNo": self.project_no,
+            "dataType": "CPI",
+            "data": [
+                {
+                    "orderNo": order_n,
+                    "compensateRecordId": compensateRecordId,
+                    "compensatePrincipal": "1",
+                    "compensateInterest": "2",
+                    "compensateOverdueInterest": "3",
+                    "compensateGuaranteeFee": "4",
+                    "compensateFee": "5",
+                    "compensateDate": time,
+                    "compensateTotalAmt": "7"
+                }
+            ]
+        }
+        response = requests.post(url=url, data=json.dumps(data), headers=self.headers)
+
+        return response.text
+
+
     def push_custData(self,cap_repay_interest=0,cap_repay_overdue_interest=0,
                              reality_capital=0, reality_interest=0, reality_overdue_interest=0, repay_type="10"):
         '''推送客户信息'''
@@ -354,6 +383,7 @@ class channel:
                 time.sleep(2)
                 self.ex_scheduler2()
 
+            self.compensatory(od_n)
         else:
             print("调用异常，推送数据失败")
 
@@ -366,7 +396,7 @@ if __name__ == '__main__':
     #融担环境
     xn = "xna"
     #环境
-    env = "test1"
+    env = "test2"
     #客户姓名
     cust_name = "汪离15"
     #借款期数，用来生成还款计划
@@ -374,7 +404,7 @@ if __name__ == '__main__':
     #还款期数，用来生成还款记录
     re_term = 2
     #借款金额
-    loanAmt = 1200
+    loanAmt = 60000
     id = "110101196103079052"
     #资金方利息
     cap_repay_interest = 10
@@ -388,6 +418,8 @@ if __name__ == '__main__':
 
     main.push_custData(cap_repay_interest=cap_repay_interest, cap_repay_overdue_interest=cap_repay_overdue_interest,
                        repay_type=repay_type)
+
+    # print(main.compensatory('orderbTFPMQvt39624018g3'))
 
 
 
