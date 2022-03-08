@@ -218,8 +218,6 @@ class AssertMonitor:
                 print("项目维度额度使用率为：%s%%" % (quota_use_ate,))
 
 
-
-
 if __name__ == '__main__':
     # jly是融担环境，mysql=adb，xn=dw时，是查adb库， mysql=rds时，xn=dw时，是查rds库
     mysql = "adb"
@@ -232,15 +230,7 @@ if __name__ == '__main__':
     project = ['zzx-lx-qnyh']
     # 额度类型为0时为循环，为1时为非循环(已页面设置为准)
     quota_type = 1
-    # 担保开始时间，可以不传，不传系统默认时间为1900-01-01 00:00:00(已页面设置为准)
-    warrant_start_time = "2022-01-01 00:00:00"
-    # 授信额度(已页面设置为准)
-    credit_limit = 1000
 
-    # 资产方统计信息(查rds库)
-    # QueryCredit(xn, env).count_assert_message(assert_no)
-
-    # QueryCredit(xn, env).query_guarantee_start_datetime("W001")
     # 项目统计信息
     AssertMonitor(mysql, xn, env).count_principal_balance(project_no=project, asset_org_no=assert_no,
                                                           quota_type=quota_type)
