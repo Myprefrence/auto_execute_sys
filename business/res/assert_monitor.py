@@ -212,7 +212,7 @@ class AssertMonitor:
                         print("%s 项目查询实担和通道库都无记录，请检查项目编码是否正确！" % (projectNo, ))
 
                 credit_limit = QueryCredit(self.xn, self.env).query_project_credit(projectNo)
-                print(credit_limit)
+
                 quota_use_ate = pls_project_balance / credit_limit * 100
                 quota_use_ate = round(quota_use_ate, 2)
                 print("项目维度额度使用率为：%s%%" % (quota_use_ate,))
