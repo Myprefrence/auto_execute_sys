@@ -93,6 +93,7 @@ class AssertMonitor:
         sum_balance = 0
         pls_project_balance = 0
 
+
         if quota_type == 0:
 
             # 当额度类型等于0时为循环
@@ -137,11 +138,12 @@ class AssertMonitor:
                     repay_principal = 0
 
                 else:
-                    global pls_principal_balance
+
                     # 为通道项目
                     # 通道放款本金
                     p_rpy_principal = 0
                     p_repay_principal = 0
+                    pls_principal_balance = 0
                     pls_loan_amt = repay(self.mysql, self.xn, self.env).pls_loan_principal(projectNo)['sum(loan_principal)']
 
                     # 通道还款金额
@@ -186,6 +188,7 @@ class AssertMonitor:
             else:
                 print("%s资产维度无数据" % (asset_org_no, ))
         else:
+            global pls_compare_quota
             # 当额度类型等于1时非循环
             for projectNo in project_no:
                 warrant_start_time = QueryCredit(self.xn, self.env).query_guarantee_start_datetime(projectNo)
@@ -213,9 +216,19 @@ class AssertMonitor:
 
                 credit_limit = QueryCredit(self.xn, self.env).query_project_credit(projectNo)
 
-                quota_use_ate = pls_project_balance / credit_limit * 100
+                quota_use_ate = pls_compare_quota / credit_limit * 100
                 quota_use_ate = round(quota_use_ate, 2)
                 print("项目维度额度使用率为：%s%%" % (quota_use_ate,))
+
+            if pls_project_balance != 0:
+
+                assert_credit = QueryCredit(self.xn, self.env).query_project_sum_credit(asset_org_no)
+                assert_use_ate = pls_project_balance / assert_credit * 100
+                assert_use_ate = round(assert_use_ate, 2)
+                print("%s资产维度总授信额度为：%s，总余额为：%s，额度使用率为：%s%%" % (asset_org_no, assert_credit,
+                                                               pls_project_balance, assert_use_ate,))
+            else:
+                print("%s资产维度无数据" % (asset_org_no, ))
 
 
 if __name__ == '__main__':
@@ -229,7 +242,7 @@ if __name__ == '__main__':
     # project = ['5004','5005','5006']
     project = ['zzx-lx-qnyh']
     # 额度类型为0时为循环，为1时为非循环(已页面设置为准)
-    quota_type = 1
+    quota_type = 0
 
     # 项目统计信息
     AssertMonitor(mysql, xn, env).count_principal_balance(project_no=project, asset_org_no=assert_no,

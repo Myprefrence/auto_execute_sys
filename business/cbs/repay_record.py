@@ -57,7 +57,7 @@ class repay_re:
 if __name__ == '__main__':
     xn = "xna"
     env = "test2"
-    order_no = "5szWZmJa1646739123"
+    order_no = "3KlRWLaV1646825031"
     #是否结清 0.本期未结清 1.本期结清
     repay_settle = 1
     #还款类型 01-提前结清 02-按制定期数进行还款

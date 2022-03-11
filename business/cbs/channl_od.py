@@ -9,6 +9,7 @@ import paramiko
 import string
 from common.conn_config import *
 
+
 class channel:
 
     def __init__(self, xn, env:str, custName:str, loan_term, id, loanAmt, project_no, re_term=1):
@@ -43,7 +44,8 @@ class channel:
         self.loanAmt = loanAmt
         self.headers = {
             "Content-Type": "application/json",
-            "isTest_post": "true"
+            "isTest_post": "true",
+            'Connection': 'close'
         }
         self.idCard = []
 
@@ -57,7 +59,7 @@ class channel:
             "uname": "risk",
             "pwd": "risk@2021&&"
         }
-        headers = {"Content-Type": "application/x-www-form-urlencoded"}
+        headers = {"Content-Type": "application/x-www-form-urlencoded",'Connection': 'close'}
         url = "https://oms{}.jiuliyuntech.com/sso-oms/loginByAjax".format(self.env)
 
         response = self.s.post(url=url, data=data, headers=headers).json()
@@ -236,7 +238,7 @@ class channel:
             "executeTime": self.now_time()
         }
 
-        headers = {"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8"}
+        headers = {"Content-Type":"application/x-www-form-urlencoded; charset=UTF-8",'Connection': 'close'}
 
         response = self.s.post(url=url, data=data, headers=headers)
         if response.status_code == 200:
@@ -248,7 +250,7 @@ class channel:
             "executeTime": self.now_time()
 
         }
-        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
+        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8",'Connection': 'close'}
 
         url = 'https://oms{}.jiuliyuntech.com/scheduler-oms/job/execute'.format(self.env)
         response = self.s.post(url=url, data=data1, headers=headers)
@@ -256,32 +258,36 @@ class channel:
             print("执行sftp解析机构数据任务成功")
 
     def ex_scheduler2(self):
+        if self.env == 'test1':
+            jobid= 'pls-046'
+        else:
+            jobid = 'pls-027'
         data1 = {
-            "jobid": "pls-046",
+            "jobid": jobid,
             "executeTime": self.now_time()
 
         }
-        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
+        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8", 'Connection': 'close'}
 
         url = 'https://oms{}.jiuliyuntech.com/scheduler-oms/job/execute'.format(self.env)
         response = self.s.post(url=url, data=data1, headers=headers)
         if response.status_code == 200:
             print("执行还款记录入账到还款计划成功")
 
-    def identity_card(self):
-        """提取身份证号码"""
-        url = "http://172.16.9.77:7300/mock/600e8061e319a76092523653/common/data"
-        headers = {"Content-Type": "application/json"}
-        data = {}
-        response = requests.post(url=url, data=json.dumps(data), headers=headers).json()
-
-        if response != None:
-            idCard = response["idCard"]
-
-        else:
-            print("接口调用异常！！！")
-
-        return idCard
+    # def identity_card(self):
+    #     """提取身份证号码"""
+    #     url = "http://172.16.9.77:7300/mock/600e8061e319a76092523653/common/data"
+    #     headers = {"Content-Type": "application/json", 'Connection': 'close'}
+    #     data = {}
+    #     response = requests.post(url=url, data=json.dumps(data), headers=headers).json()
+    #
+    #     if response != None:
+    #         idCard = response["idCard"]
+    #
+    #     else:
+    #         print("接口调用异常！！！")
+    #
+    #     return idCard
 
     def compensatory(self, order_n):
         orders_n = ''.join(random.sample(string.ascii_letters, 8))
@@ -316,8 +322,8 @@ class channel:
                              reality_capital=0, reality_interest=0, reality_overdue_interest=0, repay_type="10"):
         '''推送客户信息'''
         url = self.url + "/yht-front-oms/api/pushData"
-        id_card = self.identity_card()
-        self.idCard.append(id_card)
+        # # id_card = self.identity_card()
+        # self.idCard.append(id_card)
         sex = random.choice([0, 1])
         order_n = ''.join(random.sample(string.ascii_letters, 8))
         number = ''.join(random.sample(string.digits, 8))
@@ -367,7 +373,7 @@ class channel:
             ]
         }
 
-        response = requests.post(url=url, data=json.dumps(data), headers=self.headers)
+        response = requests.post(url=url, data=json.dumps(data), headers=self.headers,verify=False)
 
         if response.status_code == 200:
             print("发送订单成功，订单号为: %s" % (od_n,))
@@ -404,7 +410,7 @@ if __name__ == '__main__':
     #还款期数，用来生成还款记录
     re_term = 2
     #借款金额
-    loanAmt = 60000
+    loanAmt = 100
     id = "110101196103079052"
     #资金方利息
     cap_repay_interest = 10
