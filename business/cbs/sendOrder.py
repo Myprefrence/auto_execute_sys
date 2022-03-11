@@ -163,7 +163,7 @@ class send:
 
 
 if __name__ == '__main__':
-    send("xna", "test2").main(1, "1002")
+    send("xna", "test1").main(1, "1002")
 
 
 
