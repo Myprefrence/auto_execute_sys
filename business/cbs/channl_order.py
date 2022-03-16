@@ -287,8 +287,8 @@ class channel:
             if need_repay_date is not None and nper is not None:
                 now_time = self.c_now_time()
                 if now_time >= c_time:
-                    self.compensatory(order_no, nper, compensatory_date)
-                    compensatory_record_time.append(compensatory_date)
+                    self.compensatory(order_no, nper, c_time)
+                    compensatory_record_time.append(c_time)
             else:
                 continue
 
