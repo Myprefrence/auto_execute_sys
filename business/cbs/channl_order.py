@@ -177,7 +177,7 @@ class channel:
         return response.text
 
     # 还款计划和还款记录
-    def repay_plan(self, time,order_no:str,compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
+    def repay_plan(self, time, order_no:str,compensatory_time, repay_status, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01", repayAmt=''):
         plan_data = []
         rt = self.re_time()
         re = self.r_time(time, self.loan_term)
@@ -224,40 +224,50 @@ class channel:
         plan_response = requests.post(url=url, data=json.dumps(plans_data), headers=self.headers)
         # print(plan_response)
 
-        repay_record_data = []
+        if repay_status == "true":
+            repay_record_data = []
 
-        j = 1
-        for i in range(self.re_term):
-            record = {
-                "orderNo": order_no,
-                "repayRecordId": self.random_param(),
-                "repayDate": re[i],
-                "repayPrincipal": str(loanAmt),
-                "repayInterest": str(cap_repay_interest),
-                "repayGuaranteeFee": "10",
-                "repayLateFee": "4",
-                "repayOverdueInterest": str(cap_repay_overdue_interest),
-                "repayType": repay_type,
-                "repayNper": str(j),
-                "repayOtherFee": "7",
-                "breaksFee": "8",
-                "repayPrice": "9"
+            j = 1
+            for i in range(self.re_term):
+                record = {
+                    "orderNo": order_no,
+                    "repayRecordId": self.random_param(),
+                    "repayDate": re[i],
+                    "repayPrincipal": repayAmt,
+                    "repayInterest": str(cap_repay_interest),
+                    "repayGuaranteeFee": "10",
+                    "repayLateFee": "4",
+                    "repayOverdueInterest": str(cap_repay_overdue_interest),
+                    "repayType": repay_type,
+                    "repayNper": str(j),
+                    "repayOtherFee": "7",
+                    "breaksFee": "8",
+                    "repayPrice": "9"
 
+                }
+                repay_record_data.append(record)
+                plan(self.mysql, self.xn, self.env).update_pls_plan(str(loanAmt), str(cap_repay_interest),
+                                                                    str(cap_repay_overdue_interest), repay_type, re[i],
+                                                                    order_no, str(j))
+                settled_status = plan(self.mysql, self.xn, self.env).pls_plan_record(order_no, str(j))
+
+                settled = settled_status['order_no']
+                if settled is not None:
+                    settled_sign = 'Y'
+                else:
+                    settled_sign = 'N'
+                plan(self.mysql, self.xn, self.env).updates_pls_plan(settled_sign, order_no, str(j))
+                j += 1
+
+            record_data = {
+                "merchantNo": self.assert_no,
+                "projectNo": self.project_no,
+                "dataType": "PR",
             }
-            repay_record_data.append(record)
-            plan(self.mysql, self.xn, self.env).update_pls_plan(str(loanAmt), str(cap_repay_interest),
-                                                                str(cap_repay_overdue_interest), re[i], order_no, str(j))
-            j += 1
+            record_data['data'] = repay_record_data
+            record_response = requests.post(url=url, data=json.dumps(record_data), headers=self.headers)
 
-        record_data = {
-            "merchantNo": self.assert_no,
-            "projectNo": self.project_no,
-            "dataType": "PR",
-        }
-        record_data['data'] = repay_record_data
-        record_response = requests.post(url=url, data=json.dumps(record_data), headers=self.headers)
         # 代偿逻辑
-
         compensatory_record = plan(self.mysql, self.xn, self.env).query_pls_plan(order_no)
         # last_repay_date = compensatory_record['compensatory_record']
         for record in compensatory_record:
@@ -274,7 +284,7 @@ class channel:
             else:
                 continue
 
-    def push_custData(self, time, compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
+    def push_custData(self, time, compensatory_time, repay_status, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01",repayAmt=''):
         '''推送客户信息'''
         url = self.url + "/yht-front-oms/api/pushData"
         # # id_card = self.identity_card()
@@ -332,7 +342,7 @@ class channel:
 
         if response.status_code == 200:
             print("发送订单成功，订单号为: %s" % (od_n,))
-            self.repay_plan(time, od_n, compensatory_time, cap_repay_interest, cap_repay_overdue_interest, repay_type)
+            self.repay_plan(time, od_n, compensatory_time, repay_status,cap_repay_interest, cap_repay_overdue_interest, repay_type, repayAmt)
             # self.login()
             # for i in range(1):
             #
@@ -344,12 +354,12 @@ class channel:
     def test_result(self, future):
         future.result()
 
-    def main(self,thread,time, compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
+    def main(self,thread,time, compensatory_time, repay_status, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01",repayAmt=''):
         from concurrent.futures import ThreadPoolExecutor
         threadPool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="test_")
         for i in range(thread):
-            future = threadPool.submit(self.push_custData, time, compensatory_time, cap_repay_interest,
-                                       cap_repay_overdue_interest, repay_type)
+            future = threadPool.submit(self.push_custData, time, compensatory_time, repay_status,cap_repay_interest,
+                                       cap_repay_overdue_interest, repay_type, repayAmt)
             future.add_done_callback(self.test_result)
 
         threadPool.shutdown(wait=True)
@@ -377,7 +387,9 @@ if __name__ == '__main__':
     # 还款期数，用来生成还款记录
     re_term = 2
     # 借款金额
-    loanAmt = 100
+    loanAmt = 300
+    # 还款金额
+    repayAmt = '100'
     id = "110101196103079052"
     # 资金方利息
     cap_repay_interest = 10
@@ -385,13 +397,15 @@ if __name__ == '__main__':
     cap_repay_overdue_interest = 0
     # 还款类型 01-正常还款 02-提前结清, 03-提前还款
     repay_type = "01"
+    # true为还款，false为不还款
+    repay_status = "false"
     # 线程数
     thread = 5
     # loan_term:借款期限 re_term：还款期数
     main_plan = channel(mysql=mysql, xn=xn, env=env, custName=cust_name, loan_term=loan_term, id=id,
                    loanAmt=loanAmt, project_no=project_no, assert_no=assert_no, re_term=re_term)
 
-    main_plan.main(thread=thread, time=loan_time, compensatory_time=compensatory_time, cap_repay_interest=cap_repay_interest,
-              cap_repay_overdue_interest=cap_repay_overdue_interest, repay_type=repay_type)
+    main_plan.main(thread=thread, time=loan_time, compensatory_time=compensatory_time, repay_status=repay_status, cap_repay_interest=cap_repay_interest,
+              cap_repay_overdue_interest=cap_repay_overdue_interest, repay_type=repay_type,repayAmt=repayAmt)
 
 

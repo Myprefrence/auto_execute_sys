@@ -25,7 +25,7 @@ class plan:
         self.env = env
         self.xn = xn
 
-    def update_pls_plan(self, repay_principal, repay_interest, repay_overdue_interest,last_repay_date,
+    def update_pls_plan(self, repay_principal, repay_interest, repay_overdue_interest,last_repay_type,last_repay_date,
                         order_no, nper):
         try:
 
@@ -33,15 +33,46 @@ class plan:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"UPDATE `{self.xn}_{self.env}_pls`.`t_repay_plan_detail` SET  `repay_principal`=%s,`repay_interest`=%s" \
-                      f",`repay_overdue_interest`=%s,`settled_sign` = 'Y',`last_repay_date`=%s,`last_repay_type`='01'" \
+                      f",`repay_overdue_interest`=%s,`last_repay_type` = %s,`last_repay_date`=%s" \
                       f" where order_no=%s and nper=%s;"
 
-                cursor.execute(sql, (repay_principal, repay_interest, repay_overdue_interest,last_repay_date,
+                cursor.execute(sql, (repay_principal, repay_interest, repay_overdue_interest,last_repay_type,last_repay_date,
                                      order_no, nper,))
                 # print(sql)
 
             self.connection.commit()
 
+        finally:
+            self.connection.close()
+
+    def updates_pls_plan(self, settled_sign, order_no, nper):
+        try:
+
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"UPDATE `{self.xn}_{self.env}_pls`.`t_repay_plan_detail` SET `settled_sign` = %s " \
+                      f"where order_no=%s and nper=%s;"
+
+                cursor.execute(sql, (settled_sign, order_no, nper,))
+                # print(sql)
+
+            self.connection.commit()
+
+        finally:
+            self.connection.close()
+
+    def pls_plan_record(self, order_no, nper):
+        try:
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"select order_no from {self.xn}_{self.env}_pls.t_repay_plan_detail where order_no=%s and nper=%s " \
+                      f"and need_repay_principal = repay_principal;"
+                cursor.execute(sql, (order_no, nper))
+                result = cursor.fetchone()
+
+                return result
         finally:
             self.connection.close()
 
