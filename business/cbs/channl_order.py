@@ -168,7 +168,8 @@ class channel:
                     "compensateFee": "5",
                     "compensateDate": compensateDate,
                     "compensateTotalAmt": "7",
-                    "term": term
+                    "term": term,
+                    "compensateType": "02"
                 }
             ]
         }
