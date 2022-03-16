@@ -272,6 +272,8 @@ class channel:
         # last_repay_date = compensatory_record['compensatory_record']
         for record in compensatory_record:
             need_repay_date = record['need_repay_date']
+            need_repay_date = str(need_repay_date)
+            need_repay_date = "{}-{}-{} 00:00:00".format(need_repay_date[0:4], need_repay_date[4:6], need_repay_date[6:])
             n_repay_date = datetime.datetime.strptime(need_repay_date, '%Y-%m-%d %H:%M:%S')
             c_time = n_repay_date + datetime.timedelta(days=compensatory_time)
             c_time = datetime.datetime.strftime(c_time, '%Y-%m-%d %H:%M:%S')
