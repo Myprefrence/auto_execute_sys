@@ -272,6 +272,7 @@ class channel:
         # last_repay_date = compensatory_record['compensatory_record']
         for record in compensatory_record:
             need_repay_date = record['need_repay_date']
+
             need_repay_date = str(need_repay_date)
             need_repay_date = "{}-{}-{} 00:00:00".format(need_repay_date[0:4], need_repay_date[4:6], need_repay_date[6:])
             n_repay_date = datetime.datetime.strptime(need_repay_date, '%Y-%m-%d %H:%M:%S')
@@ -281,7 +282,7 @@ class channel:
             nper = record['nper']
             if need_repay_date is not None and nper is not None:
                 now_time = self.c_now_time()
-                if now_time == c_time:
+                if now_time >= c_time:
                     self.compensatory(order_no, nper)
             else:
                 continue
@@ -372,14 +373,14 @@ if __name__ == '__main__':
     # print(channel().identity_card())
     # zzx-lx-qnyh TDB01
     mysql = 'jly'
-    assert_no = 'LeXin'
-    project_no = "zzx-lx-qnyh"
+    assert_no = 'juzi'
+    project_no = "qhhf-juzi-lzyh"
     # 融担环境
-    xn = "xna"
+    xn = "xnb"
     # 环境
     env = "test1"
     # 借款时间
-    loan_time = "2021-12-25 01:00:00"
+    loan_time = "2021-11-25 01:00:00"
     # 代偿天数
     compensatory_time = 20
     # 客户姓名
@@ -402,7 +403,7 @@ if __name__ == '__main__':
     # true为还款，false为不还款
     repay_status = "false"
     # 线程数
-    thread = 5
+    thread = 1
     # loan_term:借款期限 re_term：还款期数
     main_plan = channel(mysql=mysql, xn=xn, env=env, custName=cust_name, loan_term=loan_term, id=id,
                    loanAmt=loanAmt, project_no=project_no, assert_no=assert_no, re_term=re_term)
