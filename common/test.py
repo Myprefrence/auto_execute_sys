@@ -8,53 +8,38 @@
 
 # @Software: PyCharm
 # @Desc:http请求：post,get
-import datetime
+#导入pymysql模块
+# import pymysql
+#
+# # 建立连接
+# # 连接需要ip（host），端口（port）,用户名（user），密码（password），以及指定是哪个库（db）,指定编码格式（charset，数据库中指定编码格式是utf8！）
+# conn=pymysql.connect(
+#     host='172.16.11.92',
+#     port=3306,
+#     user='root',
+#     password='HRdXK3TelK6bgGyg',
+#     db='dev_prs',
+#     charset='utf8'
+# )
+#
+# #拿到游标（游标是给mysql提交命令时的一种接口，个人理解：光标停留的地方，在这个地方你就可以输入sql语句啦）
+# cursor=conn.cursor()
+#
+# #执行sql语句
+# # 增、删、改
+# # sql= "update t_loan_info_1 set create_datetime='2021-03-01 11:35:36' where asset_loan_order_no='orderNo202109241048569804';"
+# sql= "update dev_prs.t_loan_info_1 set cust_age=21 where asset_loan_order_no='orderNo202109241048569804';"
+# #对于增删改这种数据变动性操作，必须执行以下提交操作才能真的对数据进行变更
+# cursor.execute(sql)
+# conn.commit()
+#
+#  # sql="SELECT * FROM t_loan_info_1 WHERE asset_loan_order_no='orderNo202109241048569804';"
+#
+#   #交给游标进行查询
+#
+# # 关闭游标对象
+# cursor.close()
+# conn.close()
 
-import requests
-import json
-import time
-
-class DateEncoder(json.JSONEncoder):
-    def default(self, obj):
-        if isinstance(obj, datetime.datetime):
-            return time.mktime(obj.timetuple())
-        else:
-            return json.JSONEncoder.default(self, obj)
-
-
-##首字母转大写:传入list返回list
-def listToList(list):
-    info = {}
-    list_result = []
-    for dic in list:#遍历list
-
-        for k,v in dic.items():
-            if k.find("_") >= 0:
-                str = k.split("_")
-                # print(str)
-                str1=str[0]
-                str2=str[1].capitalize()
-                str=str1+str2
-                info[str]=v
-
-            else:
-                info[k] = v
-        list_result.append(dict(info))
-
-    return list_result
-
-if __name__ == '__main__':
-    dic=[{'id': 'A062203040006340582', 'object_id': 'A172203040005100015', 'object_code': 'D027',
-      'object_version': '20210825-010', 'object_type': 'strategy_outbound', 'var_code': 'credit_query',
-      'var_name': '待查询三方', 'data_type': '1', 'category': '2', 'required': 'N', 'spec_type': None, 'use_type': '1',
-      'optional': 'Y', 'default_value': '', 'remark': '', 'create_datetime': datetime.datetime(2022, 3, 4, 15, 6, 11),
-      'update_datetime': datetime.datetime(2022, 3, 4, 15, 6, 11), 'create_by': 'LIANGHUIHUI',
-      'update_by': 'LIANGHUIHUI', 'enable': 'Y'},
-     {'id': 'A062203040006340583', 'object_id': 'A172203040005100015', 'object_code': 'D027',
-      'object_version': '20210825-010', 'object_type': 'strategy_outbound', 'var_code': 'next_credit_step',
-      'var_name': '下一征信步骤', 'data_type': '1', 'category': '2', 'required': 'N', 'spec_type': None, 'use_type': '1',
-      'optional': 'Y', 'default_value': '', 'remark': None, 'create_datetime': datetime.datetime(2022, 3, 4, 15, 6, 11),
-      'update_datetime': datetime.datetime(2022, 3, 4, 15, 6, 11), 'create_by': 'LIANGHUIHUI',
-      'update_by': 'LIANGHUIHUI', 'enable': 'Y'}]
-
-    print(json.dumps(listToList(dic), cls=DateEncoder, ensure_ascii=False))
+for i in range(10+1):
+    print(i)

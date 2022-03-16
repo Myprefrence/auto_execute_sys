@@ -65,6 +65,7 @@ class OrderMessage:
         user_message = repay(self.mysql, self.xn, self.env).eam_cust_info(cert_no)
         user_id = user_message['id_no_platform_id']
         asser_user_message = repay(self.mysql, self.xn, self.env).eam_assert_cust(cust_no)
+        asset_cust_no = asser_user_message["asset_cust_no"]
         apply_phone_id = asser_user_message['mobile_no_platform_id']
 
         cap_message = repay(self.mysql, self.xn, self.env).cap(order_id)
@@ -104,7 +105,7 @@ class OrderMessage:
         # 订单当前逾期天数
         cur_overdue_days = cbs_rpy_principal_message['订单当前逾期天数']
 
-        cap_compensatory_message = repay(self.mysql, self.xn, self.env).cap_compensatory(order_id)
+        cap_compensatory_message = repay(self.mysql, self.xn, self.env).cap_compensatory(cap_loan_order_no)
         # 累计代偿金额
         total_comp_amount = cap_compensatory_message['累计代偿金额']
         # 累计代偿本金
@@ -126,6 +127,7 @@ class OrderMessage:
             "cap_name": cap_name,
             "bis_type_id": bis_type_id,
             "bis_type_name": bis_type_name,
+            "loan_period": loan_period,
             "asset_credit_amount": asset_credit_amount,
             "loan_amt": loan_amt,
             "asset_used_amount": asset_used_amount,
@@ -141,6 +143,7 @@ class OrderMessage:
             "contract_no": contract_no,
             "repay_type": repay_type,
             "user_id": user_id,
+            "asset_cust_no": asset_cust_no,
             "apply_phone_id": apply_phone_id,
             "cap_fee_rate": cap_fee_rate,
             "project_type": project_type,
@@ -179,6 +182,6 @@ if __name__ == '__main__':
     env = "test1"
     # 身份证号码
     id_no = "110101199609076995"
-    asset_loan_order_no = "1gSFvVhN1646898412"
-    apply_no = "XNAB032203100011480591"
+    asset_loan_order_no = "t9D0xnAQ1647415947"
+    apply_no = "XNAB032203160011560013"
     print(OrderMessage(mysql, xn, env).order_message(asset_loan_order_no, apply_no))
