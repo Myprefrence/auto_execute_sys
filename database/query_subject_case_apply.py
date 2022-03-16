@@ -68,10 +68,12 @@ class repay:
                       f"JSON_EXTRACT(output_data, '$.tq01_result') as tq01_result," \
                       f"JSON_EXTRACT(output_data, '$.general_random') as general_random," \
                       f"output_data,output_data_inner from {self.env}_res.t_case_strategy_log where " \
-                      f"apply_id=%s ORDER BY update_datetime desc LIMIT 1;"
+                      f"apply_id=%s ORDER BY exec_order desc LIMIT 1;"
                 cursor.execute(sql, (apply_id, ))
                 result = cursor.fetchone()
 
                 return result
         finally:
             self.connection.close()
+
+

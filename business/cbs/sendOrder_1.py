@@ -12,7 +12,8 @@ class send:
         self.env = env
         self.xn = xn
         self.loanReqNos = []
-        self.nowDate = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
+        # self.nowDate = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
+        self.nowDate = "2021-12-25 01:00:00"
 
     #     self.name = random_name()
     #     self.phone = phone_num()
@@ -64,6 +65,13 @@ class send:
     def now_time(self):
         re = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
         re = re.split(' ')
+        re = re[0].split('-')
+        re = str(re[0]) + '-' + str(re[1]) + '-' + re[2]
+
+        return re
+
+    def r_now_time(self, time):
+        re = time.split(' ')
         re = re[0].split('-')
         re = str(re[0]) + '-' + str(re[1]) + '-' + re[2]
 
@@ -128,7 +136,7 @@ class send:
             "ageCheck": "Y",
             "policeInfoNotExist": "N",
             "policeInfoNotMatch": "N",
-            "creditTime": self.now_time(),
+            "creditTime": self.r_now_time(self.nowDate),
             "overdueHisMaxDays": "33",
             "overdueHisMaxAmt": "10000.00",
             "custApplyScore": "600",
@@ -222,9 +230,10 @@ class send:
                     rpy_principal = round((loanAmt / loan_term), 2)
                     rey_total = rpy_principal + rpy_interest
                     # loan_date = self.r_time(loan_term)
-                    loan_date = ["2021-11-16", "2021-12-16", "2022-01-16", "2022-01-18", "2022-02-18"]
+                    loan_date = ["2022-01-25", "2022-02-25", "2022-03-25", "2022-01-18", "2022-02-18"]
 
                     current_period = 1
+                    c_current_period = 1
 
                     for j in range(loan_term):
                         generate(self.xn, self.env).repay_plan(self.re_id(), order_id, i, cap_no, loan_term, current_period, loan_date[j], rey_total,
@@ -234,17 +243,25 @@ class send:
 
                         current_period += 1
 
+                    for x in range(loan_term):
+                        generate(self.xn, self.env).c_repay_plan(self.re_id(), order_id, i, cap_no, loan_term, c_current_period, loan_date[x], rey_total,
+                                                               rpy_principal, rpy_interest, self.nowDate,
+                                                               self.nowDate, asset_org_no, asset_org_name, cust_no,
+                                                               custName, pro_no, loanAmt)
+
+                        c_current_period += 1
+
 
 if __name__ == '__main__':
     loanDate = (datetime.datetime.now() + datetime.timedelta(days=92)).__format__('%Y-%m-%d %H:%M:%S')
-    project = "5004"
-    custName = "汪离24"
+    project = "6006"
+    custName = "汪离25"
     xn = "xna"
-    env = "test2"
-    id = "110101199703070012"
+    env = "test1"
+    id = "110101197909079670"
     # 110101195508074036
     # 13784559356, 15546457225
-    mobile = "15846457224"
+    mobile = "15846457225"
     loan_term = 3
     loanAmt = 600
     send(xn, env).main(1, project, id, mobile, custName, loan_term, loanAmt)

@@ -68,22 +68,22 @@ class channel:
         print(response["msg"])
 
 
-    def ex_scheduler2(self):
-        if self.env == 'test1':
-            jobid= 'pls-046'
-        else:
-            jobid = 'pls-027'
-        data1 = {
-            "jobid": jobid,
-            "executeTime": self.now_time()
-
-        }
-        headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
-
-        url = 'https://oms{}.jiuliyuntech.com/scheduler-oms/job/execute'.format(self.env)
-        response = self.s.post(url=url, data=data1, headers=headers)
-        if response.status_code == 200:
-            print("执行还款记录入账到还款计划成功")
+    # def ex_scheduler2(self):
+    #     if self.env == 'test1':
+    #         jobid= 'pls-046'
+    #     else:
+    #         jobid = 'pls-027'
+    #     data1 = {
+    #         "jobid": jobid,
+    #         "executeTime": self.now_time()
+    #
+    #     }
+    #     headers = {"Content-Type": "application/x-www-form-urlencoded; charset=UTF-8"}
+    #
+    #     url = 'https://oms{}.jiuliyuntech.com/scheduler-oms/job/execute'.format(self.env)
+    #     response = self.s.post(url=url, data=data1, headers=headers)
+    #     if response.status_code == 200:
+    #         print("执行还款记录入账到还款计划成功")
 
     def re_time(self):
         re = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
@@ -101,9 +101,9 @@ class channel:
             m - 1])
         return date.replace(day=d, month=m, year=y)
 
-    def r_time(self, loan_trem):
+    def r_time(self,time, loan_trem):
         list = []
-        now = datetime.datetime.now()
+        now = datetime.datetime.strptime(time, '%Y-%m-%d %H:%M:%S')
         for i in range(loan_trem + 1):
             re = self.monthdelta(now, i)
             re = re.__format__('%Y-%m-%d %H:%M:%S')
@@ -116,7 +116,14 @@ class channel:
 
         return list
 
-    def now_time(self):
+    def now_time(self, time):
+        # re = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
+        re = time.split(' ')
+        re = re[0].split('-')
+        re = re[0] + re[1] + re[2]
+        return re
+
+    def c_now_time(self):
         re = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
         re = re.split(' ')
         re = re[0].split('-')
@@ -139,7 +146,8 @@ class channel:
 
         return projece_c
 
-    def compensatory(self, order_n):
+    # 代偿接口
+    def compensatory(self, order_n, term):
         orders_n = ''.join(random.sample(string.ascii_letters, 8))
         number = ''.join(random.sample(string.digits, 8))
         compensateRecordId = "XNAP" + orders_n + number + number
@@ -159,7 +167,8 @@ class channel:
                     "compensateGuaranteeFee": "4",
                     "compensateFee": "5",
                     "compensateDate": time,
-                    "compensateTotalAmt": "7"
+                    "compensateTotalAmt": "7",
+                    "term": term
                 }
             ]
         }
@@ -167,10 +176,11 @@ class channel:
 
         return response.text
 
-    def repay_plan(self, order_no:str, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="10"):
+    # 还款计划和还款记录
+    def repay_plan(self, time,order_no:str,compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
         plan_data = []
         rt = self.re_time()
-        re = self.r_time(self.loan_term)
+        re = self.r_time(time, self.loan_term)
         i = 1
         loanAmt = round((self.loanAmt/self.loan_term), 2)
         # print(loanAmt)
@@ -214,8 +224,6 @@ class channel:
         plan_response = requests.post(url=url, data=json.dumps(plans_data), headers=self.headers)
         # print(plan_response)
 
-        time.sleep(1)
-
         repay_record_data = []
 
         j = 1
@@ -248,8 +256,25 @@ class channel:
         }
         record_data['data'] = repay_record_data
         record_response = requests.post(url=url, data=json.dumps(record_data), headers=self.headers)
+        # 代偿逻辑
 
-    def push_custData(self, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="10"):
+        compensatory_record = plan(self.mysql, self.xn, self.env).query_pls_plan(order_no)
+        # last_repay_date = compensatory_record['compensatory_record']
+        for record in compensatory_record:
+            need_repay_date = record['need_repay_date']
+            n_repay_date = datetime.datetime.strptime(need_repay_date, '%Y-%m-%d %H:%M:%S')
+            c_time = n_repay_date + datetime.timedelta(days=compensatory_time)
+            c_time = datetime.datetime.strftime(c_time, '%Y-%m-%d %H:%M:%S')
+            c_time = self.now_time(c_time)
+            nper = record['nper']
+            if need_repay_date is not None and nper is not None:
+                now_time = self.c_now_time()
+                if now_time == c_time:
+                    self.compensatory(order_no, nper)
+            else:
+                continue
+
+    def push_custData(self, time, compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
         '''推送客户信息'''
         url = self.url + "/yht-front-oms/api/pushData"
         # # id_card = self.identity_card()
@@ -257,7 +282,8 @@ class channel:
         sex = random.choice([0, 1])
         order_n = ''.join(random.sample(string.ascii_letters, 8))
         number = ''.join(random.sample(string.digits, 8))
-        od_n = "order" + order_n + number + "g3"
+        number_1 = ''.join(random.sample(string.digits, 8))
+        od_n = "order" + order_n + number + number_1 + "g3"
 
         loan_date = datetime.datetime.now().__format__('%Y-%m-%d %H:%M:%S')
 
@@ -270,7 +296,7 @@ class channel:
                     "orderNo": od_n,
                     "idCardNo": self.id,
                     "custName": self.cust_name,
-                    "loanDate": self.now_time(),
+                    "loanDate": self.now_time(time),
                     "loanNper": self.loan_term,
                     "loanPrincipal": self.loanAmt,
                     "financingPartner": 0,
@@ -306,15 +332,28 @@ class channel:
 
         if response.status_code == 200:
             print("发送订单成功，订单号为: %s" % (od_n,))
-            self.repay_plan(od_n, cap_repay_interest, cap_repay_overdue_interest, repay_type)
-            self.login()
-            for i in range(1):
+            self.repay_plan(time, od_n, compensatory_time, cap_repay_interest, cap_repay_overdue_interest, repay_type)
+            # self.login()
+            # for i in range(1):
+            #
+            #     self.ex_scheduler2()
 
-                self.ex_scheduler2()
-
-            self.compensatory(od_n)
         else:
             print("调用异常，推送数据失败")
+
+    def test_result(self, future):
+        future.result()
+
+    def main(self,thread,time, compensatory_time, cap_repay_interest=0, cap_repay_overdue_interest=0, repay_type="01"):
+        from concurrent.futures import ThreadPoolExecutor
+        threadPool = ThreadPoolExecutor(max_workers=4, thread_name_prefix="test_")
+        for i in range(thread):
+            future = threadPool.submit(self.push_custData, time, compensatory_time, cap_repay_interest,
+                                       cap_repay_overdue_interest, repay_type)
+            future.add_done_callback(self.test_result)
+
+        threadPool.shutdown(wait=True)
+        print('main finished')
 
 
 if __name__ == '__main__':
@@ -326,7 +365,11 @@ if __name__ == '__main__':
     # 融担环境
     xn = "xna"
     # 环境
-    env = "test2"
+    env = "test1"
+    # 借款时间
+    loan_time = "2021-12-25 01:00:00"
+    # 代偿天数
+    compensatory_time = 20
     # 客户姓名
     cust_name = "汪离15"
     # 借款期数，用来生成还款计划
@@ -340,13 +383,15 @@ if __name__ == '__main__':
     cap_repay_interest = 10
     # 资金方罚息
     cap_repay_overdue_interest = 0
-    # 还款类型 10-正常还款 30-提前结清, 40-逾期还款 50-代偿  100-追偿还款
-    repay_type = "10"
+    # 还款类型 01-正常还款 02-提前结清, 03-提前还款
+    repay_type = "01"
+    # 线程数
+    thread = 5
     # loan_term:借款期限 re_term：还款期数
-    main = channel(mysql=mysql,xn=xn, env=env, custName=cust_name, loan_term=loan_term, id=id,
+    main_plan = channel(mysql=mysql, xn=xn, env=env, custName=cust_name, loan_term=loan_term, id=id,
                    loanAmt=loanAmt, project_no=project_no, assert_no=assert_no, re_term=re_term)
 
-    main.push_custData(cap_repay_interest=cap_repay_interest, cap_repay_overdue_interest=cap_repay_overdue_interest,
-                       repay_type=repay_type)
+    main_plan.main(thread=thread, time=loan_time, compensatory_time=compensatory_time, cap_repay_interest=cap_repay_interest,
+              cap_repay_overdue_interest=cap_repay_overdue_interest, repay_type=repay_type)
 
 

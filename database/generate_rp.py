@@ -60,6 +60,41 @@ class generate:
                       " `schedule_compound_interest`, `rpy_compound_interest`) VALUES (%s," \
                       " %s, %s, %s," \
                       " %s, %s, 0, %s, %s, %s, %s, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00," \
+                      " NULL, 0.00, 0.00, NULL, NULL, 'ASSET', 0, %s, %s, 'sys'," \
+                      " '345', %s, %s, %s, %s, %s, '360-阳光消金'," \
+                      " NULL, %s, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);"\
+                    .format(self.xn, self.env)
+
+                cursor.execute(sql, (re_id, order_id, order_no, cap_loan_order_no,
+                            loan_term, loan_t, loan_date, rey_total, rpy_principal, rpy_interest, create_datetime,
+                            update_datetime, asset_org_no, asset_org_name, cust_no, cust_name, project_no, loanAmt))
+
+            # connection is not autocommit by default. So you must commit to save
+            # your changes.
+            self.connection.commit()
+
+        finally:
+            self.connection.close()
+
+    def c_repay_plan(self, re_id, order_id, order_no, cap_loan_order_no,loan_term,loan_t,loan_date,rey_total,rpy_principal,rpy_interest,
+                   create_datetime, update_datetime, asset_org_no, asset_org_name, cust_no, cust_name, project_no, loanAmt):
+        '''还款计划'''
+
+        try:
+            with self.connection.cursor() as cursor:
+                # Create a new record
+                sql = "INSERT INTO {}_{}_cbs.t_repay_plan(`id`, `loan_order_id`, `asset_loan_order_no`," \
+                      " `cap_loan_order_no`, `total_period_cnt`, `current_period`, `repay_settle`, `schedule_date`," \
+                      " `schedule_total`, `schedule_principal`, `schedule_interest`, `schedule_overdue_fee`," \
+                      " `schedule_other_fee`, `rpy_total_amt`, `rpy_principal`, `rpy_interest`, `rpy_overdue_fee`," \
+                      " `rpy_other_fee`, `last_rpy_datetime`, `marketing_reduction`, `compliance_reduction`," \
+                      " `other_reduction`, `status`, `type`, `version`, `create_datetime`, `update_datetime`," \
+                      " `created_by`, `updated_by`, `asset_org_no`, `asset_org_name`, `cust_no`, `cust_name`," \
+                      " `project_no`, `project_name`, `channel`, `loan_amt`, `grace_date`, `schedule_gua_fee`," \
+                      " `rpy_gua_fee`, `schedule_service_fee`, `rpy_service_fee`, `schedule_late_fee`, `rpy_late_fee`," \
+                      " `schedule_compound_interest`, `rpy_compound_interest`) VALUES (%s," \
+                      " %s, %s, %s," \
+                      " %s, %s, 0, %s, %s, %s, %s, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00, 0.00," \
                       " NULL, 0.00, 0.00, NULL, NULL, 'CBS', 0, %s, %s, 'sys'," \
                       " '345', %s, %s, %s, %s, %s, '360-阳光消金'," \
                       " NULL, %s, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL);"\

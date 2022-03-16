@@ -42,7 +42,6 @@ class caseApplyMessage:
         apply_result = case_message['apply_result']
         result_code = case_message['result_code']
         approve_datetime = case_message['resp_time']
-        apply_datetime = case_message['apply_datetime']
         loan_date = case_message['loan_date']
         loan_term = case_message['loan_term']
         irr_rate = case_message['irr_rate']
@@ -50,6 +49,12 @@ class caseApplyMessage:
         asset_credit_amt = case_message['asset_credit_amt']
         asset_used_amt = case_message['asset_used_amt']
         exec_model = case_message['exec_model']
+
+        if exec_model == "1":
+            apply_datetime = case_message['apply_datetime']
+        else:
+            apply_datetime = case_message['update_datetime']
+
         req_data = case_message['req_data']
         resp_data = case_message['resp_data']
         is_delete = case_message['enable']
@@ -118,7 +123,7 @@ if __name__ == '__main__':
     mysql = "jly"
     xn = "xna"
     env = "test1"
-    apply_no = "XNAB032203100011480616"
+    apply_no = "XNAB032203160011560014"
     print(caseApplyMessage(mysql, xn, env).case_apply_message(apply_no))
 
 
