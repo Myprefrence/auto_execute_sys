@@ -84,7 +84,7 @@ class plan:
                 # Read a single record
                 # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
                 sql = f"select last_repay_date,nper,need_repay_date from {self.xn}_{self.env}_pls.t_repay_plan_detail" \
-                      f" where order_no=%s and overdue_sign ='Y' and settled_sign='N';"
+                      f" where order_no=%s and settled_sign='N';"
                 cursor.execute(sql, (order_no, ))
                 result = cursor.fetchall()
 
