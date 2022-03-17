@@ -91,3 +91,19 @@ class plan:
                 return result
         finally:
             self.connection.close()
+
+    def query_compensate_date(self, order_no):
+        '''提取订单担保信息'''
+
+        try:
+            with self.connection.cursor() as cursor:
+                # Read a single record
+                # sql = "SELECT `id`, `password` FROM `users` WHERE `email`=%s"
+                sql = f"select compensate_date from {self.xn}_{self.env}_pls.t_compensate_record where order_no=%s " \
+                      f"order by term desc LIMIT 1;"
+                cursor.execute(sql, (order_no, ))
+                result = cursor.fetchone()
+
+                return result
+        finally:
+            self.connection.close()
