@@ -225,7 +225,7 @@ class channel:
         plan_response = requests.post(url=url, data=json.dumps(plans_data), headers=self.headers)
         # print(plan_response)
 
-        if repay_status == "true":
+        if repay_status == "true" and compensatory_day == 0:
             repay_record_data = []
 
             j = 1
@@ -293,13 +293,13 @@ class channel:
                 continue
 
         # repay_time = self.r_time(time, self.loan_term)
-        if compensatory_day != 0:
+        if compensatory_day != 0 and repay_status != "true":
             repay_record_data = []
 
             j = 1
 
-            for i in range(len(compensatory_record_time)):
-
+            for i in range(self.re_term):
+                print(i)
                 record_time = compensatory_record_time[i]
 
                 record_time = "{}-{}-{} 00:00:00".format(record_time[0:4], record_time[4:6],
@@ -448,7 +448,7 @@ if __name__ == '__main__':
     # 借款期数，用来生成还款计划
     loan_term = 3
     # 还款期数，用来生成还款记录
-    re_term = 2
+    re_term = 1
     # 借款金额
     loanAmt = 300
     # 还款金额
