@@ -278,17 +278,18 @@ class channel:
             need_repay_date = str(need_repay_date)
             need_repay_date = "{}-{}-{} 00:00:00".format(need_repay_date[0:4], need_repay_date[4:6], need_repay_date[6:])
             n_repay_date = datetime.datetime.strptime(need_repay_date, '%Y-%m-%d %H:%M:%S')
-            c_time = n_repay_date + datetime.timedelta(days=compensatory_time)
-            c_time = datetime.datetime.strftime(c_time, '%Y-%m-%d %H:%M:%S')
-            c_time = self.now_time(c_time)
+            co_time = n_repay_date + datetime.timedelta(days=compensatory_time)
+            co_time = datetime.datetime.strftime(co_time, '%Y-%m-%d %H:%M:%S')
+            co_time = self.now_time(co_time)
             nper = record['nper']
             compensatory = int(nper-1)
             compensatory_date = re[compensatory]
             if need_repay_date is not None and nper is not None:
                 now_time = self.c_now_time()
-                if now_time >= c_time:
-                    self.compensatory(order_no, nper, c_time)
-                    compensatory_record_time.append(c_time)
+                if now_time >= co_time:
+                    # print(co_time)
+                    self.compensatory(order_no, nper, co_time)
+                    compensatory_record_time.append(co_time)
             else:
                 continue
 
@@ -299,9 +300,14 @@ class channel:
             j = 1
 
             for i in range(self.re_term):
-                print(i)
-                record_time = compensatory_record_time[i]
 
+                compensate_message = plan(self.mysql, self.xn, self.env).query_compensate_date(order_no)
+                compensate_date = str(compensate_message['compensate_date'])
+
+                if compensate_date is None:
+                    continue
+                # record_time = compensatory_record_time[i]
+                record_time = compensate_date
                 record_time = "{}-{}-{} 00:00:00".format(record_time[0:4], record_time[4:6],
                                                              record_time[6:])
                 record_time = datetime.datetime.strptime(record_time, '%Y-%m-%d %H:%M:%S')

@@ -180,8 +180,10 @@ if __name__ == '__main__':
     mysql = "jly"
     xn = "xna"
     env = "test1"
-    # 身份证号码
+    # 身份证号码 110101199609076995
     id_no = "110101199609076995"
-    asset_loan_order_no = "t9D0xnAQ1647415947"
-    apply_no = "XNAB032203160011560013"
+    # t9D0xnAQ1647415947
+    asset_loan_order_no = "NGkzQolp1647518368"
+    # XNAB032203160011560013
+    apply_no = "XNAB032203170011560027"
     print(OrderMessage(mysql, xn, env).order_message(asset_loan_order_no, apply_no))
