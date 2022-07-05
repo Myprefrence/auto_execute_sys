@@ -41,3 +41,7 @@ def get_config(file_path: str):
     config = configparser.ConfigParser()
     config.read(config_path, encoding='utf-8')
     return config
+
+if __name__ == '__main__':
+    a = get_root_path()
+    print(a)

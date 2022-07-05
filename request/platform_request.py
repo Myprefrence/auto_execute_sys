@@ -65,6 +65,7 @@ def offline_suspend(env: str, data: str):
 
 
 # 登录disconf
+
 def login_disconf(data: dict):
     return request.session.post(url='https://disconfdev.jiuliyuntech.com/api/account/signin', data=data).json()
 
@@ -89,3 +90,6 @@ def get_config_list(env_id: str, sys_id: str):
 def set_config_item(config_id: str, content: str):
     return request.session.put(url=f'https://disconfdev.jiuliyuntech.com/api/web/config/filetext/{config_id}?'
                                    f'fileContent={content}', headers={'application': 'x-www-form-urlencoded'}).text
+
+if __name__ == '__main__':
+    run_schedule_job("test1",)

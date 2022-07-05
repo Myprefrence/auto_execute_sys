@@ -253,12 +253,15 @@ class send:
 
 
 if __name__ == '__main__':
+    import time
+    t = time.strftime('%Y:%m:%d:%H:%M:%S')
+    print(t)
     loanDate = (datetime.datetime.now() + datetime.timedelta(days=92)).__format__('%Y-%m-%d %H:%M:%S')
-    project = "6006"
-    custName = "汪离25"
+    project = "test222"
+    custName = "飞八升"
     xn = "xna"
     env = "test1"
-    id = "110101197909079670"
+    id = "310105199003209696"
     # 110101195508074036
     # 13784559356, 15546457225
     mobile = "15846457225"
@@ -267,7 +270,6 @@ if __name__ == '__main__':
     send(xn, env).main(1, project, id, mobile, custName, loan_term, loanAmt)
 
     od = ["H6iWlw3M1641784507"]
-
 
 
 

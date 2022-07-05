@@ -1,3 +1,3 @@
 from common.db_connect import DBConnect
 
-db = DBConnect()
+# db = DBConnect()
