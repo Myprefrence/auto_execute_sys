@@ -25,7 +25,7 @@ class variableSql(object):
         print("变量接口编码:",co)
         return co
 
-    def updateHuiSu(self,applyno, applyid, orderno,HuisuTime):
+    def updateHuiSu(self, applyno, applyid, orderno, HuisuTime):
         # 回溯订单
         cur = con.cursor()
         # 执行查询用户名和密码的sql语句
@@ -37,10 +37,10 @@ class variableSql(object):
         if datee != HuisuTime:
             cur.execute(
                 'update %s_res.t_case_apply_log set apply_datetime = "%s" where apply_no = "%s";' % (
-                self.env, HuisuTime,applyno))
+                    self.env, HuisuTime, applyno))
             cur.execute(
                 'update %s_res.t_case_apply_log set create_datetime = "%s" where apply_no = "%s";' % (
-                self.env, HuisuTime,applyno))
+                    self.env, HuisuTime, applyno))
             con.commit()
             print('回溯订单申请时间\创建时间更新成功')
         else:
@@ -50,10 +50,11 @@ class variableSql(object):
         con.commit()
         print('回溯订单内部变量清除更新成功')
 
-    def cbsUpdate(self,orderno,loanDate):
+    def cbsUpdate(self, orderno, loanDate):
         # cbs订单管理创建时间更新
         cur = con.cursor()
-        cur.execute('select * from %s_%s_cbs.t_loan_order where asset_loan_order_no="%s";' % (self.xn, self.env, orderno))
+        cur.execute(
+            'select * from %s_%s_cbs.t_loan_order where asset_loan_order_no="%s";' % (self.xn, self.env, orderno))
         up = cur.fetchall()
         # print(up[0][21])
         createDate = up[0]["create_datetime"]
@@ -61,48 +62,50 @@ class variableSql(object):
         if datee1 != loanDate:
             cur.execute(
                 'update %s_%s_cbs.t_loan_order set create_datetime = "%s" where asset_loan_order_no = "%s";' % (
-                self.xn, self.env,loanDate, orderno))
+                    self.xn, self.env, loanDate, orderno))
             con.commit()
             print('cbs订单管理创建时间更新成功')
         else:
             print("cbs订单管理创建时间造数失败，请手动执行sql")
 
-    def updateCreate(self,num, orderno,loanDate):
+    def updateCreate(self, num, orderno, loanDate):
         # 修改被造数据--实还金额=应还金额
         cur = con.cursor()
         cur.execute(
             'update %s_%s_cbs.t_repay_plan set rpy_total_amt = "%s" where asset_loan_order_no = "%s" and type = "CBS" order by schedule_date ;' % (
-            self.xn,self.env,num, orderno))
+                self.xn, self.env, num, orderno))
         con.commit()
         print("修改实还金额=应还金额成功")
 
-    def updateTime1(self,orderno):
-        #应还时间>实还时间
+    def updateTime1(self, orderno):
+        # 应还时间>实还时间
         cur = con.cursor()
         cur.execute(
             'update %s_%s_cbs.t_repay_plan set last_rpy_datetime = date_sub(schedule_date,interval 2 day) where asset_loan_order_no = "%s" and type = "CBS" order by schedule_date ;' % (
-            self.xn, self.env, orderno))
+                self.xn, self.env, orderno))
         con.commit()
         print("应还时间>实还时间造数成功")
 
-    def updateTime2(self,orderno):
-        #应还时间<实还时间
+    def updateTime2(self, orderno):
+        # 应还时间<实还时间
         cur = con.cursor()
         cur.execute(
-            'update %s_%s_cbs.t_repay_plan set last_rpy_datetime = date_add(schedule_date,interval 2 day) where asset_loan_order_no = "%s" and type = "CBS" order by schedule_date ;' % (
-            self.xn, self.env, orderno))
+            'update %s_%s_cbs.t_repay_plan set last_rpy_datetime = date_add(schedule_date,interval 6 day) where asset_loan_order_no = "%s" and type = "CBS" order by schedule_date ;' % (
+                self.xn, self.env, orderno))
         con.commit()
         print("应还时间<实还时间造数成功")
-    def updateTime3(self,orderno):
-        #应还时间=实还时间
+
+    def updateTime3(self, orderno):
+        # 应还时间=实还时间
         cur = con.cursor()
         cur.execute(
             'update %s_%s_cbs.t_repay_plan set last_rpy_datetime = schedule_date where asset_loan_order_no = "%s" and type = "CBS" order by schedule_date ;' % (
-            self.xn, self.env, orderno))
+                self.xn, self.env, orderno))
         con.commit()
         print("应还时间=实还时间造数成功")
+
     def result(self,applyid,interface_code,code):
-        #查询回溯返回的结果
+        """查询回溯返回的结果"""
         cur = con.cursor()
         aa = 1
         while True:
@@ -124,13 +127,6 @@ class variableSql(object):
                     break
 
 
-
-def varCode(env,code):
-    #获取变量编码
-    cur = con.cursor()
-    cur.execute('SELECT DISTINCT(invoke_interface_code) FROM %s_fes.t_var_base_info WHERE var_code in ("%s");'%(env,code))
-    da = cur.fetchall()
-    print("变量接口编码为：",da)
 
 if __name__ == '__main__':
     # variableSql("xna","test1").varCode("userid_grt_ever_overdue_cnt_tot")

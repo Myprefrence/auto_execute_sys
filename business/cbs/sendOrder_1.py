@@ -4,7 +4,7 @@ from common.scheduler import *
 from common.connectMysql import *
 import datetime
 from database.generate_rp import *
-
+from Mysql import *
 
 class send:
 
@@ -250,7 +250,12 @@ class send:
                                                                custName, pro_no, loanAmt)
 
                         c_current_period += 1
-
+    def inno(self,user_id):
+        cur = con.cursor()
+        cur.execute(
+            'select * from %s_%s_eam.t_cust_info where id_no_platform_id="%s";' % (xn,env, user_id))
+        up = cur.fetchall()
+        return up[0]["id_no"]
 
 if __name__ == '__main__':
     import time
@@ -258,10 +263,11 @@ if __name__ == '__main__':
     print(t)
     loanDate = (datetime.datetime.now() + datetime.timedelta(days=92)).__format__('%Y-%m-%d %H:%M:%S')
     project = "test222"
-    custName = "飞八升"
+    custName = "吴健东"
     xn = "xna"
     env = "test1"
-    id = "310105199003209696"
+    #通过user_id去跑订单项目
+    id = send(xn,env).inno("CI2205100001196273")
     # 110101195508074036
     # 13784559356, 15546457225
     mobile = "15846457225"
@@ -270,8 +276,6 @@ if __name__ == '__main__':
     send(xn, env).main(1, project, id, mobile, custName, loan_term, loanAmt)
 
     od = ["H6iWlw3M1641784507"]
-
-
 
 
 
